@@ -1,15 +1,8 @@
-import {
-  Controller,
-  Get,
-  Post,
-  Body,
-  Patch,
-  Param,
-  Delete,
-} from '@nestjs/common';
+import { Controller, Post, Body, Session } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { SignupDto } from './dto/request/signup.dto';
 import { ApiBody, ApiOperation } from '@nestjs/swagger';
+import { LoginDto } from './dto/request/login.dto';
 
 @Controller('auth')
 export class AuthController {
@@ -24,23 +17,23 @@ export class AuthController {
     return this.authService.create(signupDto);
   }
 
-  @Get()
-  findAll() {
-    return this.authService.findAll();
+  @ApiOperation({ summary: '로그인' })
+  @ApiBody({
+    type: LoginDto,
+  })
+  @Post('login')
+  async login(
+    @Body() loginDto: LoginDto,
+    @Session() session: Record<string, any>,
+  ) {
+    const user = await this.authService.login(loginDto);
+    session.userId = user.id;
+    return user.name;
   }
 
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.authService.findOne(+id);
-  }
-
-  @Patch(':id')
-  update(@Param('id') id: string) {
-    return this.authService.update(+id);
-  }
-
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.authService.remove(+id);
+  @ApiOperation({ summary: '로그아웃' })
+  @Post('logout')
+  logout(@Session() session: Record<string, any>) {
+    session.userId = null;
   }
 }

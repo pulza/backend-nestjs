@@ -3,6 +3,7 @@ import { SignupDto } from './dto/request/signup.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
 import * as bcrypt from 'bcrypt';
 import { ConfigService } from '@nestjs/config';
+import { LoginDto } from './dto/request/login.dto';
 
 @Injectable()
 export class AuthService {
@@ -38,19 +39,29 @@ export class AuthService {
     });
   }
 
-  findAll() {
-    return `This action returns all auth`;
-  }
+  async login(loginDto: LoginDto) {
+    console.log(loginDto.password);
+    const user = await this.prisma.user.findUnique({
+      where: {
+        email: loginDto.email,
+      },
+    });
+    if (!user)
+      throw new HttpException(
+        '존재하지 않는 이메일입니다.',
+        HttpStatus.NOT_FOUND,
+      );
 
-  findOne(id: number) {
-    return `This action returns a #${id} auth`;
-  }
+    const isPasswordMatch = await bcrypt.compare(
+      loginDto.password,
+      user.password,
+    );
+    if (!isPasswordMatch)
+      throw new HttpException(
+        '비밀번호가 일치하지 않습니다.',
+        HttpStatus.UNAUTHORIZED,
+      );
 
-  update(id: number) {
-    return `This action updates a #${id} auth`;
-  }
-
-  remove(id: number) {
-    return `This action removes a #${id} auth`;
+    return user;
   }
 }
