@@ -14,6 +14,7 @@ export class SignupDto {
 
   @ApiProperty({
     description: '비밀번호',
+    example: '12341234',
     type: String,
     required: true,
   })

@@ -40,7 +40,6 @@ export class AuthService {
   }
 
   async login(loginDto: LoginDto) {
-    console.log(loginDto.password);
     const user = await this.prisma.user.findUnique({
       where: {
         email: loginDto.email,
@@ -48,8 +47,8 @@ export class AuthService {
     });
     if (!user)
       throw new HttpException(
-        '존재하지 않는 이메일입니다.',
-        HttpStatus.NOT_FOUND,
+        '이메일 또는 비밀번호 불일치',
+        HttpStatus.BAD_REQUEST,
       );
 
     const isPasswordMatch = await bcrypt.compare(
@@ -58,10 +57,18 @@ export class AuthService {
     );
     if (!isPasswordMatch)
       throw new HttpException(
-        '비밀번호가 일치하지 않습니다.',
-        HttpStatus.UNAUTHORIZED,
+        '이메일 또는 비밀번호 불일치',
+        HttpStatus.BAD_REQUEST,
       );
 
     return user;
+  }
+
+  async withdraw(userId: number) {
+    await this.prisma.user.delete({
+      where: {
+        id: userId,
+      },
+    });
   }
 }
