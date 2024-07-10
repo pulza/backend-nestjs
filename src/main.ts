@@ -1,10 +1,12 @@
-import { NestFactory } from '@nestjs/core';
+import { NestFactory, Reflector } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { ValidationPipe } from '@nestjs/common';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import * as session from 'express-session';
 import { LoggingInterceptor } from './common/interceptors/logging.interceptor';
 import { AllExceptionsFilter } from './common/exceptions/exception-filters/http-exception.filter';
+import { RolesGuard } from './common/guard/roles.guard';
+import { PrismaService } from './prisma/prisma.service';
 
 declare const module: any;
 
@@ -24,8 +26,9 @@ async function bootstrap() {
       },
     }),
   );
-  app.useGlobalPipes(new ValidationPipe());
+  app.useGlobalGuards(new RolesGuard(new Reflector(), app.get(PrismaService)));
   app.useGlobalInterceptors(new LoggingInterceptor());
+  app.useGlobalPipes(new ValidationPipe());
   app.useGlobalFilters(new AllExceptionsFilter());
 
   const config = new DocumentBuilder()

@@ -4,6 +4,7 @@ import { PrismaService } from 'src/prisma/prisma.service';
 import * as bcrypt from 'bcrypt';
 import { ConfigService } from '@nestjs/config';
 import { LoginDto } from './dto/request/login.dto';
+import { User } from '@prisma/client';
 
 @Injectable()
 export class AuthService {
@@ -64,10 +65,10 @@ export class AuthService {
     return user;
   }
 
-  async withdraw(userId: number) {
+  async withdraw(user: User) {
     await this.prisma.user.delete({
       where: {
-        id: userId,
+        id: user.id,
       },
     });
   }
