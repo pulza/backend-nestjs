@@ -20,6 +20,7 @@ model User {
   email     String   @unique @db.VarChar(100)
   name      String   @db.VarChar(30)
   password  String
+  role      Int      @default(1)
   quizzes   Quiz[]
 
   @@map("users")
