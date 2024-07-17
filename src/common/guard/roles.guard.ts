@@ -17,44 +17,24 @@ export class RolesGuard implements CanActivate {
   ) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
-    const roles = this.reflector.get<string[]>('roles', context.getHandler());
+    const roles = this.reflector.get<string[]>(
+      'roles',
+      context.getHandler(),
+    ) || ['loggedIn'];
     const request = context.switchToHttp().getRequest();
-
-    if (!roles) {
-      if (!request.session.userId)
-        throw new HttpException('Unauthorized', HttpStatus.UNAUTHORIZED);
-
-      const user = await this.prisma.user.findUnique({
+    let user;
+    if (request.session.userId) {
+      user = await this.prisma.user.findUnique({
         where: {
           id: request.session.userId,
         },
       });
-
-      if (user) {
-        request.user = user;
-        return true;
-      } else throw new HttpException('Unauthorized', HttpStatus.UNAUTHORIZED);
-    }
-
-    if (roles.includes('public')) return true;
-
-    if (roles.includes('admin')) {
-      const user = await this.prisma.user.findUnique({
-        where: {
-          id: request.session.userId,
-        },
-      });
-
-      if (!user)
-        throw new HttpException('Unauthorized', HttpStatus.UNAUTHORIZED);
-
       request.user = user;
-
-      if (user.role !== RolesEnum.ADMIN)
-        throw new HttpException('Forbidden', HttpStatus.FORBIDDEN);
-
-      return true;
     }
+
+    if (roles.includes('loggedIn') && user) return true;
+    if (roles.includes('public')) return true;
+    if (roles.includes('admin') && user?.role === RolesEnum.ADMIN) return true;
 
     throw new HttpException('Unauthorized', HttpStatus.UNAUTHORIZED);
   }
