@@ -1,4 +1,12 @@
-import { Controller, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import {
+  Controller,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+  Get,
+} from '@nestjs/common';
 import { CategoriesService } from './categories.service';
 import { CreateCategoryDto } from './dto/request/create-category.dto';
 import { UpdateCategoryDto } from './dto/request/update-category.dto';
@@ -7,6 +15,12 @@ import { Roles } from 'src/common/decorator/roles.decorator';
 @Controller('admin/categories')
 export class CategoriesController {
   constructor(private readonly categoriesService: CategoriesService) {}
+
+  @Get()
+  @Roles('admin')
+  findAll() {
+    return this.categoriesService.findAll();
+  }
 
   @Post()
   @Roles('admin')
@@ -24,6 +38,7 @@ export class CategoriesController {
   }
 
   @Delete(':id')
+  @Roles('admin')
   remove(@Param('id') id: string): void {
     this.categoriesService.remove(+id);
   }

@@ -1,6 +1,7 @@
 import {
   IsInt,
   IsNotEmpty,
+  IsOptional,
   IsString,
   MinLength,
   ValidateIf,
@@ -12,6 +13,7 @@ export class CreateCategoryDto {
   @MinLength(2)
   name: string;
 
+  @IsOptional()
   @ValidateIf((o) => o.parentId !== null)
   @IsInt()
   parentId: number | null;
