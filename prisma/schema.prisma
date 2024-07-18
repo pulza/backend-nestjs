@@ -27,13 +27,14 @@ model User {
 }
 
 model Category {
-  id        Int      @default(autoincrement()) @id
-  createdAt DateTime @default(now()) @map("created_at")
-  updatedAt DateTime @updatedAt @map("updated_at")
-  name      String   @db.VarChar(30)
-  index     Int
-  parentId  Int?     @map("parent_id")
-  quizzes   Quiz[]
+  id            Int      @default(autoincrement()) @id
+  createdAt     DateTime @default(now()) @map("created_at")
+  updatedAt     DateTime @updatedAt @map("updated_at")
+  name          String   @db.VarChar(30)
+  index         Int
+  parentId      Int?     @map("parent_id")
+  superParentId Int?     @map("super_parent_id")
+  quizzes       Quiz[]
 
   @@map("categories")
 }
