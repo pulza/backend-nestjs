@@ -8,52 +8,7 @@ import { CategoryDto } from './dto/response/category.dto';
 export class CategoriesService {
   constructor(private prisma: PrismaService) {}
 
-  async findAll(): Promise<CategoryDto[]> {
-    const superParentCategoies = await this.prisma.category.findMany({
-      where: { index: 0 },
-    });
-    const childCategories = await this.prisma.category.findMany({
-      where: { index: { not: 0 } },
-    });
-    const parentIdOfCategoryObject: { [key: number]: CategoryDto[] } = {};
-    const categoryResponse: CategoryDto[] = [];
-
-    childCategories.forEach((child) => {
-      if (!child.parentId) return;
-      if (!parentIdOfCategoryObject[child.parentId]) parentIdOfCategoryObject[child.parentId] = [];
-
-      parentIdOfCategoryObject[child.parentId].push({
-        id: child.id,
-        name: child.name,
-        index: child.index,
-        children: [],
-      });
-    });
-
-    superParentCategoies.forEach((superParentCategory) => {
-      const obj = {
-        id: superParentCategory.id,
-        name: superParentCategory.name,
-        index: superParentCategory.index,
-        children: parentIdOfCategoryObject[superParentCategory.id] || [],
-      };
-      this.setChildCategories(obj.children, parentIdOfCategoryObject);
-      categoryResponse.push(obj);
-    });
-
-    return categoryResponse;
-  }
-
-  private setChildCategories(
-    parentCategories: CategoryDto[],
-    parentIdOfCategoryObject: { [key: number]: CategoryDto[] },
-  ) {
-    return parentCategories.map((parent) => {
-      parent.children = parentIdOfCategoryObject[parent.id] || [];
-
-      this.setChildCategories(parent.children, parentIdOfCategoryObject);
-    });
-  }
+  async findAll(): Promise<CategoryDto[]> {}
 
   async create(createCategoryDto: CreateCategoryDto): Promise<void> {
     if (
