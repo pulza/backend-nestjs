@@ -3,10 +3,10 @@ import { Prisma } from '@prisma/client';
 import { IsNotEmpty, IsNumber, IsString } from 'class-validator';
 
 export class CreateQuizDto {
-  @ApiProperty({ description: '문제를 등록하려는 최하위 category id', required: true, example: 1 })
+  @ApiProperty({ description: '문제를 등록하려는 소분류 smallCategory id', required: true, example: 1 })
   @IsNotEmpty()
   @IsNumber()
-  categoryId: number;
+  smallCategoryId: number;
 
   @ApiProperty({ description: '문제', required: true, example: 'What is the capital of Korea?' })
   @IsNotEmpty()
@@ -31,8 +31,14 @@ export class CreateQuizDto {
   @IsString()
   solution: string;
 
-  constructor(categoryId: number, question: string, choice: Prisma.InputJsonValue, answer: string, solution: string) {
-    this.categoryId = categoryId;
+  constructor(
+    smallCategoryId: number,
+    question: string,
+    choice: Prisma.InputJsonValue,
+    answer: string,
+    solution: string,
+  ) {
+    this.smallCategoryId = smallCategoryId;
     this.question = question;
     this.choice = choice;
     this.answer = answer;

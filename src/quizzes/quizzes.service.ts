@@ -9,9 +9,9 @@ import { QuizDto } from './dto/response/quiz.dto';
 export class QuizzesService {
   constructor(private prisma: PrismaService) {}
 
-  async findAll(categoryId: number): Promise<QuizDto[]> {
+  async findAll(smallCategoryId: number): Promise<QuizDto[]> {
     const quizzes = await this.prisma.quiz.findMany({
-      where: { categoryId },
+      where: { smallCategoryId },
       orderBy: { id: 'desc' },
     });
 
@@ -29,10 +29,8 @@ export class QuizzesService {
   }
 
   async create(user: User, createQuizDto: CreateQuizDto): Promise<void> {
-    // TODO: 최하위 카테고리인지 찾기 or 테이블 구조 변경
-
-    await this.prisma.category.findUniqueOrThrow({
-      where: { id: createQuizDto.categoryId },
+    await this.prisma.smallCategory.findUniqueOrThrow({
+      where: { id: createQuizDto.smallCategoryId },
     });
 
     await this.prisma.quiz.create({

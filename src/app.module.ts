@@ -5,7 +5,7 @@ import { ConfigModule } from '@nestjs/config';
 import { AuthModule } from './auth/auth.module';
 import { PrismaModule } from './prisma/prisma.module';
 import { CategoriesModule } from './admin/categories/categories.module';
-import { QuizzesModule } from './admin/quizzes/quizzes.module';
+import { QuizzesModule } from './quizzes/quizzes.module';
 
 @Module({
   imports: [

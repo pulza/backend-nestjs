@@ -4,7 +4,7 @@ import { CreateCategoryDto } from './dto/request/create-category.dto';
 import { UpdateCategoryDto } from './dto/request/update-category.dto';
 import { Roles } from 'src/common/decorator/roles.decorator';
 import { ApiBody, ApiOperation, ApiParam, ApiResponse, ApiTags } from '@nestjs/swagger';
-import { CategoryDto } from './dto/response/category.dto';
+import { BigCategoryDto, CategoryDto, MediumCategoryDto } from './dto/response/category.dto';
 @ApiTags('admin - categories')
 @Controller('admin/categories')
 export class CategoriesController {
@@ -18,28 +18,126 @@ export class CategoriesController {
     return this.categoriesService.findAll();
   }
 
-  @ApiOperation({ summary: '카테고리 생성', description: 'Role: admin' })
+  @ApiOperation({ summary: 'Big 카테고리의 medium 및 small 카테고리 전체 조회', description: 'Role: public' })
+  @ApiParam({ name: 'bigCategoryId', description: 'Big 카테고리 id' })
+  @ApiResponse({ type: CategoryDto })
+  @Get(':bigCategoryId')
+  @Roles('public')
+  findBigCategorySubs(@Param('bigCategoryId') bigCategoryId: string) {
+    return this.categoriesService.findBigCategorySubs(+bigCategoryId);
+  }
+
+  @ApiOperation({ summary: 'Big 카테고리 전체 조회', description: 'Role: public' })
+  @ApiResponse({ type: BigCategoryDto, isArray: true })
+  @Get('big')
+  @Roles('public')
+  findBigCategories() {
+    return this.categoriesService.findBigCategories();
+  }
+
+  @ApiOperation({ summary: 'Medium 카테고리 전체 조회', description: 'Role: public' })
+  @ApiParam({ name: 'bigCategoryId', description: 'Big 카테고리 id' })
+  @ApiResponse({ type: MediumCategoryDto, isArray: true })
+  @Get('medium/:bigCategoryId')
+  @Roles('public')
+  findMediumCategories(@Param('bigCategoryId') bigCategoryId: string) {
+    return this.categoriesService.findMediumCategories(+bigCategoryId);
+  }
+
+  @ApiOperation({ summary: 'Small 카테고리 전체 조회', description: 'Role: public' })
+  @ApiParam({ name: 'mediumCategoryId', description: 'Medium 카테고리 id' })
+  @Get('small/:mediumCategoryId')
+  @Roles('public')
+  findSmallCategories(@Param('mediumCategoryId') mediumCategoryId: string) {
+    return this.categoriesService.findSmallCategories(+mediumCategoryId);
+  }
+
+  @ApiOperation({ summary: '대분류 Big 카테고리 생성', description: 'Role: admin' })
   @ApiBody({ type: CreateCategoryDto })
-  @Post()
+  @Post('big')
   @Roles('admin')
   create(@Body() createCategoryDto: CreateCategoryDto): Promise<void> {
-    return this.categoriesService.create(createCategoryDto);
+    return this.categoriesService.createBig(createCategoryDto);
   }
 
-  @ApiOperation({ summary: '카테고리 수정', description: 'Role: admin' })
-  @ApiParam({ name: 'id', description: '카테고리 id' })
+  @ApiOperation({ summary: '대분류 Big 카테고리 수정', description: 'Role: admin' })
+  @ApiParam({ name: 'bigCategoryId', description: 'Big 카테고리 id' })
   @ApiBody({ type: UpdateCategoryDto })
-  @Patch(':id')
+  @Patch('big/:bigCategoryId')
   @Roles('admin')
-  update(@Param('id') id: string, @Body() updateCategoryDto: UpdateCategoryDto): Promise<void> {
-    return this.categoriesService.update(+id, updateCategoryDto);
+  update(@Param('bigCategoryId') bigCategoryId: string, @Body() updateCategoryDto: UpdateCategoryDto): Promise<void> {
+    return this.categoriesService.updateBig(+bigCategoryId, updateCategoryDto);
   }
 
-  @ApiOperation({ summary: '카테고리 삭제', description: 'Role: admin' })
-  @ApiParam({ name: 'id', description: '카테고리 id' })
-  @Delete(':id')
+  @ApiOperation({ summary: '대분류 Big 카테고리 삭제', description: 'Role: admin' })
+  @ApiParam({ name: 'bigCategoryId', description: 'Big 카테고리 id' })
+  @Delete('big/:bigCategoryId')
   @Roles('admin')
-  remove(@Param('id') id: string): Promise<void> {
-    return this.categoriesService.remove(+id);
+  remove(@Param('bigCategoryId') bigCategoryId: string): Promise<void> {
+    return this.categoriesService.removeBig(+bigCategoryId);
+  }
+
+  @ApiOperation({ summary: '중분류 Medium 카테고리 생성', description: 'Role: admin' })
+  @ApiParam({ name: 'bigCategoryId', description: 'Big 카테고리 id' })
+  @ApiBody({ type: CreateCategoryDto })
+  @Post('medium/:bigCategoryId')
+  @Roles('admin')
+  createMedium(
+    @Param('bigCategoryId') bigCategoryId: string,
+    @Body() createCategoryDto: CreateCategoryDto,
+  ): Promise<void> {
+    return this.categoriesService.createMedium(+bigCategoryId, createCategoryDto);
+  }
+
+  @ApiOperation({ summary: '중분류 Medium 카테고리 수정', description: 'Role: admin' })
+  @ApiParam({ name: 'mediumCategoryId', description: 'Medium 카테고리 id' })
+  @ApiBody({ type: UpdateCategoryDto })
+  @Patch('medium/:mediumCategoryId')
+  @Roles('admin')
+  updateMedium(
+    @Param('mediumCategoryId') mediumCategoryId: string,
+    @Body() updateCategoryDto: UpdateCategoryDto,
+  ): Promise<void> {
+    return this.categoriesService.updateMedium(+mediumCategoryId, updateCategoryDto);
+  }
+
+  @ApiOperation({ summary: '중분류 Medium 카테고리 삭제', description: 'Role: admin' })
+  @ApiParam({ name: 'mediumCategoryId', description: 'Medium 카테고리 id' })
+  @Delete('medium/:mediumCategoryId')
+  @Roles('admin')
+  removeMedium(@Param('mediumCategoryId') mediumCategoryId: string): Promise<void> {
+    return this.categoriesService.removeMedium(+mediumCategoryId);
+  }
+
+  @ApiOperation({ summary: '소분류 Small 카테고리 생성', description: 'Role: admin' })
+  @ApiParam({ name: 'mediumCategoryId', description: 'Medium 카테고리 id' })
+  @ApiBody({ type: CreateCategoryDto })
+  @Post('small/:mediumCategoryId')
+  @Roles('admin')
+  createSmall(
+    @Param('mediumCategoryId') mediumCategoryId: string,
+    @Body() createCategoryDto: CreateCategoryDto,
+  ): Promise<void> {
+    return this.categoriesService.createSmall(+mediumCategoryId, createCategoryDto);
+  }
+
+  @ApiOperation({ summary: '소분류 Small 카테고리 수정', description: 'Role: admin' })
+  @ApiParam({ name: 'smallCategoryId', description: 'Small 카테고리 id' })
+  @ApiBody({ type: UpdateCategoryDto })
+  @Patch('small/:smallCategoryId')
+  @Roles('admin')
+  updateSmall(
+    @Param('smallCategoryId') smallCategoryId: string,
+    @Body() updateCategoryDto: UpdateCategoryDto,
+  ): Promise<void> {
+    return this.categoriesService.updateSmall(+smallCategoryId, updateCategoryDto);
+  }
+
+  @ApiOperation({ summary: '소분류 Small 카테고리 삭제', description: 'Role: admin' })
+  @ApiParam({ name: 'smallCategoryId', description: 'Small 카테고리 id' })
+  @Delete('small/:smallCategoryId')
+  @Roles('admin')
+  removeSmall(@Param('smallCategoryId') smallCategoryId: string): Promise<void> {
+    return this.categoriesService.removeSmall(+smallCategoryId);
   }
 }

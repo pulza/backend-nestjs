@@ -2,64 +2,160 @@ import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { CreateCategoryDto } from './dto/request/create-category.dto';
 import { UpdateCategoryDto } from './dto/request/update-category.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
-import { CategoryDto } from './dto/response/category.dto';
+import { BigCategoryDto, CategoryDto, MediumCategoryDto, SmallCategoryDto } from './dto/response/category.dto';
 
 @Injectable()
 export class CategoriesService {
   constructor(private prisma: PrismaService) {}
 
-  async findAll(): Promise<CategoryDto[]> {}
-
-  async create(createCategoryDto: CreateCategoryDto): Promise<void> {
-    if (
-      (createCategoryDto.parentId === null && createCategoryDto.index !== 0) ||
-      (createCategoryDto.parentId && createCategoryDto.index === 0)
-    )
-      throw new HttpException('', HttpStatus.BAD_REQUEST);
-
-    const isExist = await this.prisma.category.findFirst({
-      where: { name: createCategoryDto.name, parentId: createCategoryDto.parentId, index: createCategoryDto.index },
+  async findAll(): Promise<CategoryDto[]> {
+    const categories = await this.prisma.bigCategory.findMany({
+      include: { mediumCategories: { include: { smallCategories: true } } },
     });
-    if (isExist) throw new HttpException('', HttpStatus.CONFLICT);
 
-    const superParentId = createCategoryDto.parentId ? await this.findSuperParentId(createCategoryDto.parentId) : null;
-
-    await this.prisma.category.create({
-      data: { superParentId, ...createCategoryDto },
+    return categories.map((category) => {
+      return new CategoryDto(category);
     });
   }
 
-  async update(id: number, updateCategoryDto: UpdateCategoryDto): Promise<void> {
-    await this.prisma.category.findUniqueOrThrow({
+  async findBigCategorySubs(bigCategoryId: number): Promise<CategoryDto> {
+    const categories = await this.prisma.bigCategory.findUniqueOrThrow({
+      where: { id: bigCategoryId },
+      include: { mediumCategories: { include: { smallCategories: true } } },
+    });
+
+    return new CategoryDto(categories);
+  }
+
+  async findBigCategories(): Promise<BigCategoryDto[]> {
+    const bigCategories = await this.prisma.bigCategory.findMany();
+
+    return bigCategories.map((bigCategory) => {
+      return new BigCategoryDto(bigCategory);
+    });
+  }
+
+  async findMediumCategories(bigCategoryId: number): Promise<MediumCategoryDto[]> {
+    const mediumCategories = await this.prisma.mediumCategory.findMany({
+      where: { bigCategoryId },
+    });
+
+    return mediumCategories.map((mediumCategory) => {
+      return new MediumCategoryDto(mediumCategory);
+    });
+  }
+
+  async findSmallCategories(mediumCategoryId: number): Promise<SmallCategoryDto[]> {
+    const smallCategories = await this.prisma.smallCategory.findMany({
+      where: { mediumCategoryId },
+    });
+
+    return smallCategories.map((smallCategory) => {
+      return new SmallCategoryDto(smallCategory);
+    });
+  }
+
+  async createBig(createCategoryDto: CreateCategoryDto): Promise<void> {
+    const isExist = await this.prisma.bigCategory.findFirst({
+      where: { name: createCategoryDto.name },
+    });
+    if (isExist) throw new HttpException('', HttpStatus.CONFLICT);
+
+    await this.prisma.bigCategory.create({
+      data: createCategoryDto,
+    });
+  }
+
+  async updateBig(id: number, updateCategoryDto: UpdateCategoryDto): Promise<void> {
+    await this.prisma.bigCategory.findUniqueOrThrow({
       where: { id },
     });
 
-    await this.prisma.category.update({
+    await this.prisma.bigCategory.update({
       where: { id },
       data: updateCategoryDto,
     });
   }
 
-  async remove(id: number): Promise<void> {
-    await this.prisma.category.findUniqueOrThrow({
+  async removeBig(id: number): Promise<void> {
+    await this.prisma.bigCategory.findUniqueOrThrow({
       where: { id },
     });
 
-    await this.prisma.category.delete({
+    await this.prisma.bigCategory.delete({
       where: { id },
     });
-
-    // TODO: 자식 카테고리도 삭제 -> 자식의 자식도 있으면 계속 삭제해야하므로 dfs로 구현 or 테이블 구조 변경
   }
 
-  private async findSuperParentId(parentId: number): Promise<number> {
-    const isPresent = await this.prisma.category.findFirst({
-      where: { id: parentId },
+  async createMedium(bigCategoryId: number, createCategoryDto: CreateCategoryDto): Promise<void> {
+    await this.prisma.bigCategory.findUniqueOrThrow({
+      where: { id: bigCategoryId },
     });
-    if (!isPresent) throw new HttpException('', HttpStatus.BAD_REQUEST);
 
-    const superParentId = isPresent.superParentId || parentId;
+    const isExist = await this.prisma.mediumCategory.findFirst({
+      where: { name: createCategoryDto.name, bigCategoryId },
+    });
+    if (isExist) throw new HttpException('', HttpStatus.CONFLICT);
 
-    return superParentId;
+    await this.prisma.mediumCategory.create({
+      data: { ...createCategoryDto, bigCategoryId },
+    });
+  }
+
+  async updateMedium(id: number, updateCategoryDto: UpdateCategoryDto): Promise<void> {
+    await this.prisma.mediumCategory.findUniqueOrThrow({
+      where: { id },
+    });
+
+    await this.prisma.mediumCategory.update({
+      where: { id },
+      data: updateCategoryDto,
+    });
+  }
+
+  async removeMedium(id: number): Promise<void> {
+    await this.prisma.mediumCategory.findUniqueOrThrow({
+      where: { id },
+    });
+
+    await this.prisma.mediumCategory.delete({
+      where: { id },
+    });
+  }
+
+  async createSmall(mediumCategoryId: number, createCategoryDto: CreateCategoryDto): Promise<void> {
+    await this.prisma.mediumCategory.findUniqueOrThrow({
+      where: { id: mediumCategoryId },
+    });
+
+    const isExist = await this.prisma.smallCategory.findFirst({
+      where: { name: createCategoryDto.name, mediumCategoryId },
+    });
+    if (isExist) throw new HttpException('', HttpStatus.CONFLICT);
+
+    await this.prisma.smallCategory.create({
+      data: { ...createCategoryDto, mediumCategoryId },
+    });
+  }
+
+  async updateSmall(id: number, updateCategoryDto: UpdateCategoryDto): Promise<void> {
+    await this.prisma.smallCategory.findUniqueOrThrow({
+      where: { id },
+    });
+
+    await this.prisma.smallCategory.update({
+      where: { id },
+      data: updateCategoryDto,
+    });
+  }
+
+  async removeSmall(id: number): Promise<void> {
+    await this.prisma.smallCategory.findUniqueOrThrow({
+      where: { id },
+    });
+
+    await this.prisma.smallCategory.delete({
+      where: { id },
+    });
   }
 }
