@@ -4,17 +4,16 @@ export interface CategoryInterface {
   index: number;
 }
 
-export class CategoryResponseDto {
+export class CategoryDto {
   id: number;
   name: string;
   index: number;
-  children: CategoryResponseDto[];
+  children: CategoryDto[];
 
   constructor(category: CategoryInterface, children: CategoryInterface[] = []) {
     this.id = category.id;
     this.name = category.name;
     this.index = category.index;
-    this.children = children.map((child) => new CategoryResponseDto(child));
-    console.log(1, this.children);
+    this.children = children.map((child) => new CategoryDto(child));
   }
 }

@@ -2,41 +2,25 @@ import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { CreateCategoryDto } from './dto/request/create-category.dto';
 import { UpdateCategoryDto } from './dto/request/update-category.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
-import { Category } from '@prisma/client';
-import { CategoryResponseDto } from './dto/response/category.dto';
+import { CategoryDto } from './dto/response/category.dto';
 
 @Injectable()
 export class CategoriesService {
   constructor(private prisma: PrismaService) {}
 
-  async create(createCategoryDto: CreateCategoryDto): Promise<Category> {
-    const superParentId = await this.findSuperParentId(
-      createCategoryDto.parentId,
-      createCategoryDto.index,
-    );
-
-    const category = await this.prisma.category.create({
-      data: { superParentId, ...createCategoryDto },
-    });
-
-    return category;
-  }
-
-  async findAll() {
+  async findAll(): Promise<CategoryDto[]> {
     const superParentCategoies = await this.prisma.category.findMany({
       where: { index: 0 },
     });
     const childCategories = await this.prisma.category.findMany({
       where: { index: { not: 0 } },
     });
-    const parentIdOfCategoryObject: { [key: number]: CategoryResponseDto[] } =
-      {};
-    const categoryResponse: CategoryResponseDto[] = [];
+    const parentIdOfCategoryObject: { [key: number]: CategoryDto[] } = {};
+    const categoryResponse: CategoryDto[] = [];
 
     childCategories.forEach((child) => {
       if (!child.parentId) return;
-      if (!parentIdOfCategoryObject[child.parentId])
-        parentIdOfCategoryObject[child.parentId] = [];
+      if (!parentIdOfCategoryObject[child.parentId]) parentIdOfCategoryObject[child.parentId] = [];
 
       parentIdOfCategoryObject[child.parentId].push({
         id: child.id,
@@ -61,8 +45,8 @@ export class CategoriesService {
   }
 
   private setChildCategories(
-    parentCategories: CategoryResponseDto[],
-    parentIdOfCategoryObject: { [key: number]: CategoryResponseDto[] },
+    parentCategories: CategoryDto[],
+    parentIdOfCategoryObject: { [key: number]: CategoryDto[] },
   ) {
     return parentCategories.map((parent) => {
       parent.children = parentIdOfCategoryObject[parent.id] || [];
@@ -71,35 +55,55 @@ export class CategoriesService {
     });
   }
 
-  update(id: number, updateCategoryDto: UpdateCategoryDto) {
-    const category = this.prisma.category.update({
+  async create(createCategoryDto: CreateCategoryDto): Promise<void> {
+    if (
+      (createCategoryDto.parentId === null && createCategoryDto.index !== 0) ||
+      (createCategoryDto.parentId && createCategoryDto.index === 0)
+    )
+      throw new HttpException('', HttpStatus.BAD_REQUEST);
+
+    const isExist = await this.prisma.category.findFirst({
+      where: { name: createCategoryDto.name, parentId: createCategoryDto.parentId, index: createCategoryDto.index },
+    });
+    if (isExist) throw new HttpException('', HttpStatus.CONFLICT);
+
+    const superParentId = createCategoryDto.parentId ? await this.findSuperParentId(createCategoryDto.parentId) : null;
+
+    await this.prisma.category.create({
+      data: { superParentId, ...createCategoryDto },
+    });
+  }
+
+  async update(id: number, updateCategoryDto: UpdateCategoryDto): Promise<void> {
+    await this.prisma.category.findUniqueOrThrow({
+      where: { id },
+    });
+
+    await this.prisma.category.update({
       where: { id },
       data: updateCategoryDto,
     });
-    return category;
   }
 
-  remove(id: number): void {
-    this.prisma.category.delete({
+  async remove(id: number): Promise<void> {
+    await this.prisma.category.findUniqueOrThrow({
       where: { id },
     });
+
+    await this.prisma.category.delete({
+      where: { id },
+    });
+
+    // TODO: 자식 카테고리도 삭제 -> 자식의 자식도 있으면 계속 삭제해야하므로 dfs로 구현 or 테이블 구조 변경
   }
 
-  private async findSuperParentId(
-    parentId: number | null,
-    index: number,
-  ): Promise<number | null> {
-    if (parentId === null && index !== 0)
-      throw new HttpException('', HttpStatus.BAD_REQUEST);
+  private async findSuperParentId(parentId: number): Promise<number> {
+    const isPresent = await this.prisma.category.findFirst({
+      where: { id: parentId },
+    });
+    if (!isPresent) throw new HttpException('', HttpStatus.BAD_REQUEST);
 
-    let superParentId = null;
-    if (parentId) {
-      const isPresent = await this.prisma.category.findFirst({
-        where: { id: parentId },
-      });
-      if (!isPresent) throw new HttpException('', HttpStatus.BAD_REQUEST);
-      superParentId = isPresent.superParentId;
-    }
+    const superParentId = isPresent.superParentId || parentId;
 
     return superParentId;
   }
