@@ -11,7 +11,7 @@ import { TokenService } from './token/token.service';
 declare const module: any;
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
+  const app = await NestFactory.create(AppModule, { cors: true });
   app.useGlobalGuards(new RolesGuard(new Reflector(), app.get(TokenService), app.get(PrismaService)));
   app.useGlobalInterceptors(new LoggingInterceptor());
   app.useGlobalPipes(new ValidationPipe());
