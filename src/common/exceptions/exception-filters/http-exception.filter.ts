@@ -1,23 +1,16 @@
-import {
-  ExceptionFilter,
-  Catch,
-  ArgumentsHost,
-  HttpException,
-  HttpStatus,
-} from '@nestjs/common';
+import { ExceptionFilter, Catch, ArgumentsHost, HttpStatus } from '@nestjs/common';
+import { Prisma } from '@prisma/client';
 
 interface CustomHttpExceptionResponse {
-  error: string;
   message: any;
   statusCode: number;
-  code?: number;
-  isErrorLoggingActive?: boolean;
 }
 
 @Catch()
 export class AllExceptionsFilter implements ExceptionFilter {
   catch(exception: any, host: ArgumentsHost) {
     console.error('exception', exception);
+
     const ctx = host.switchToHttp();
     const request = ctx.getRequest();
     const response = ctx.getResponse();
@@ -25,46 +18,27 @@ export class AllExceptionsFilter implements ExceptionFilter {
     const path = request.url;
     const userAgent = request.headers['user-agent'];
     const clientIp = request.ip;
-    const status =
-      exception instanceof HttpException
-        ? exception.getStatus()
-        : HttpStatus.INTERNAL_SERVER_ERROR;
-
-    const errResponse =
-      exception instanceof HttpException
-        ? (exception.getResponse() as CustomHttpExceptionResponse | string)
-        : {
-            error: 'Internal Server Error',
-            message: exception.message,
-            statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
-          };
 
     let err: CustomHttpExceptionResponse;
 
-    if (typeof errResponse === 'string') {
+    if (exception instanceof Prisma.PrismaClientKnownRequestError && exception.code === 'P2025')
       err = {
-        error: errResponse,
-        message: errResponse,
-        statusCode: status,
-        isErrorLoggingActive: true,
+        message: 'The requested resource was not found',
+        statusCode: HttpStatus.NOT_FOUND,
       };
-    } else {
+    else
       err = {
-        error: errResponse.error || 'Internal Server Error',
-        message: errResponse.message || 'An unexpected error occurred',
-        statusCode: errResponse.statusCode || HttpStatus.INTERNAL_SERVER_ERROR,
-        isErrorLoggingActive: errResponse.isErrorLoggingActive !== false,
+        message: exception.response || 'An unexpected error occurred',
+        statusCode: exception.status || HttpStatus.INTERNAL_SERVER_ERROR,
       };
-    }
 
     const errText = `[ExceptionError] ${method} ${path} userId: ${request?.user?.userId} nickname: ${request?.user?.nickname} userAgent: ${userAgent} clientIp: ${clientIp}`;
 
     console.log(errText, err);
 
-    response.status(status).json({
-      statusCode: status,
+    response.status(err.statusCode).json({
+      statusCode: err.statusCode,
       message: err.message,
-      error: err.error,
     });
   }
 }

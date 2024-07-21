@@ -26,30 +26,52 @@ model User {
   @@map("users")
 }
 
-model Category {
-  id        Int      @default(autoincrement()) @id
-  createdAt DateTime @default(now()) @map("created_at")
-  updatedAt DateTime @updatedAt @map("updated_at")
-  name      String   @db.VarChar(30)
-  index     Int
-  parentId  Int?     @map("parent_id")
-  quizzes   Quiz[]
+model BigCategory {
+  id               Int              @default(autoincrement()) @id
+  createdAt        DateTime         @default(now()) @map("created_at")
+  updatedAt        DateTime         @updatedAt @map("updated_at")
+  name             String           @db.VarChar(30)
+  mediumCategories MediumCategory[]
 
-  @@map("categories")
+  @@map("big_categories")
+}
+
+model MediumCategory {
+  id              Int             @default(autoincrement()) @id
+  createdAt       DateTime        @default(now()) @map("created_at")
+  updatedAt       DateTime        @updatedAt @map("updated_at")
+  name            String          @db.VarChar(30)
+  bigCategory     BigCategory     @relation(fields: [bigCategoryId], references: [id])
+  bigCategoryId   Int             @map("big_category_id")
+  smallCategories SmallCategory[]
+
+  @@map("medium_categories")
+}
+
+model SmallCategory {
+  id                 Int            @default(autoincrement()) @id
+  createdAt          DateTime       @default(now()) @map("created_at")
+  updatedAt          DateTime       @updatedAt @map("updated_at")
+  name               String         @db.VarChar(30)
+  mediumCategory     MediumCategory @relation(fields: [mediumCategoryId], references: [id])
+  mediumCategoryId   Int            @map("medium_category_id")
+  quizzes            Quiz[]
+
+  @@map("small_categories")
 }
 
 model Quiz {
-  id          Int      @default(autoincrement()) @id
-  createdAt   DateTime @default(now()) @map("created_at")
-  updatedAt   DateTime @updatedAt @map("updated_at")
-  question    String
-  choice      Json
-  answer      String
-  solution    String
-  category    Category @relation(fields: [categoryId], references: [id])
-  categoryId  Int      @map("category_id")
-  user        User     @relation(fields: [userId], references: [id])
-  userId      Int      @map("user_id")
+  id               Int           @default(autoincrement()) @id
+  createdAt        DateTime      @default(now()) @map("created_at")
+  updatedAt        DateTime      @updatedAt @map("updated_at")
+  question         String
+  choice           Json
+  answer           String
+  solution         String
+  smallCategory    SmallCategory @relation(fields: [smallCategoryId], references: [id])
+  smallCategoryId  Int           @map("small_category_id")
+  user             User          @relation(fields: [userId], references: [id])
+  userId           Int           @map("user_id")
 
   @@map("quizzes")
 }

@@ -2,31 +2,17 @@ import { NestFactory, Reflector } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { ValidationPipe } from '@nestjs/common';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
-import * as session from 'express-session';
 import { LoggingInterceptor } from './common/interceptors/logging.interceptor';
 import { AllExceptionsFilter } from './common/exceptions/exception-filters/http-exception.filter';
-import { RolesGuard } from './common/guard/roles.guard';
+import { RolesGuard } from './common/guards/roles.guard';
 import { PrismaService } from './prisma/prisma.service';
+import { TokenService } from './token/token.service';
 
 declare const module: any;
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
-
-  const sessionSecret = process.env.SESSION_SECRET || 'your-secret-key';
-  app.use(
-    session({
-      secret: sessionSecret,
-      saveUninitialized: false,
-      resave: false,
-      cookie: {
-        httpOnly: true,
-        secure: false,
-        maxAge: 3000 * 60 * 60 * 24 * 30,
-      },
-    }),
-  );
-  app.useGlobalGuards(new RolesGuard(new Reflector(), app.get(PrismaService)));
+  app.useGlobalGuards(new RolesGuard(new Reflector(), app.get(TokenService), app.get(PrismaService)));
   app.useGlobalInterceptors(new LoggingInterceptor());
   app.useGlobalPipes(new ValidationPipe());
   app.useGlobalFilters(new AllExceptionsFilter());
@@ -35,6 +21,14 @@ async function bootstrap() {
     .setTitle('풀자')
     .setDescription('풀자 API 문서')
     .setVersion('1.0')
+    .addBearerAuth(
+      {
+        type: 'http',
+        scheme: 'bearer',
+        in: 'header',
+      },
+      'access-token',
+    )
     .build();
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('api', app, document);
