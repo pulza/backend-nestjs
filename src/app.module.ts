@@ -4,7 +4,7 @@ import { AppService } from './app.service';
 import { ConfigModule } from '@nestjs/config';
 import { AuthModule } from './auth/auth.module';
 import { PrismaModule } from './prisma/prisma.module';
-import { CategoriesModule } from './admin/categories/categories.module';
+import { CategoriesModule } from './admin/categories/admin-categories.module';
 import { QuizzesModule } from './quizzes/quizzes.module';
 import { CacheModule } from '@nestjs/cache-manager';
 import { CommentsModule } from './quizzes/comments/comments.module';

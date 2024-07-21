@@ -5,7 +5,7 @@ import { PrismaService } from 'src/prisma/prisma.service';
 import { BigCategoryDto, CategoryDto, MediumCategoryDto, SmallCategoryDto } from './dto/response/category.dto';
 
 @Injectable()
-export class CategoriesService {
+export class AdminCategoriesService {
   constructor(private prisma: PrismaService) {}
 
   async findAll(): Promise<CategoryDto[]> {
