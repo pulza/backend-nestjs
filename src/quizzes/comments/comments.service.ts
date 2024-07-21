@@ -1,9 +1,9 @@
 import { Injectable } from '@nestjs/common';
-import { CreateCommentDto } from './dto/request/create-comment.dto';
+import { CreateCommentDto } from './dto/requests/create-comment.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { User } from '@prisma/client';
-import { CommentDto } from './dto/response/comment.dto';
-import { UpdateCommentDto } from './dto/request/update-comment.dto';
+import { CommentDto } from './dto/responses/comment.dto';
+import { UpdateCommentDto } from './dto/requests/update-comment.dto';
 
 @Injectable()
 export class CommentsService {
@@ -38,9 +38,11 @@ export class CommentsService {
       },
       include: {
         user: true,
-      }
+      },
     });
-    return comments.map((comment) => { return new CommentDto(comment); });
+    return comments.map((comment) => {
+      return new CommentDto(comment);
+    });
   }
 
   async remove(user: User, id: number): Promise<void> {

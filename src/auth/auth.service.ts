@@ -1,9 +1,9 @@
 import { HttpException, HttpStatus, Inject, Injectable } from '@nestjs/common';
-import { SignupDto } from './dto/request/signup.dto';
+import { SignupDto } from './dto/requests/signup.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
 import * as bcrypt from 'bcrypt';
 import { ConfigService } from '@nestjs/config';
-import { LoginDto } from './dto/request/login.dto';
+import { LoginDto } from './dto/requests/login.dto';
 import { User } from '@prisma/client';
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import { Cache } from 'cache-manager';

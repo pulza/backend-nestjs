@@ -1,53 +1,54 @@
 import { Controller, Post, Body, Patch, Param, Delete, Get } from '@nestjs/common';
 import { AdminCategoriesService } from './admin-categories.service';
-import { CreateCategoryDto } from './dto/request/create-category.dto';
-import { UpdateCategoryDto } from './dto/request/update-category.dto';
+import { CreateCategoryDto } from './dto/requests/create-category.dto';
+import { UpdateCategoryDto } from './dto/requests/update-category.dto';
 import { Roles } from 'src/common/decorators/roles.decorator';
 import { ApiBearerAuth, ApiBody, ApiOperation, ApiParam, ApiResponse, ApiTags } from '@nestjs/swagger';
-import { BigCategoryDto, CategoryDto, MediumCategoryDto } from './dto/response/category.dto';
+import { BigCategoryDto, CategoryDto, MediumCategoryDto } from './dto/responses/category.dto';
+
 @ApiTags('admin - categories')
 @Controller('admin/categories')
 export class AdminCategoriesController {
   constructor(private readonly adminCategoriesService: AdminCategoriesService) {}
 
-  @ApiOperation({ summary: '카테고리 전체 조회', description: 'Role: public' })
+  @ApiOperation({ summary: '카테고리 전체 조회', description: 'Role: admin' })
   @ApiResponse({ type: CategoryDto, isArray: true })
   @Get()
-  @Roles('public')
+  @Roles('admin')
   findAll() {
     return this.adminCategoriesService.findAll();
   }
 
-  @ApiOperation({ summary: 'Big 카테고리의 medium 및 small 카테고리 전체 조회', description: 'Role: public' })
+  @ApiOperation({ summary: 'Big 카테고리의 medium 및 small 카테고리 전체 조회', description: 'Role: admin' })
   @ApiParam({ name: 'bigCategoryId', description: 'Big 카테고리 id' })
   @ApiResponse({ type: CategoryDto })
   @Get(':bigCategoryId')
-  @Roles('public')
+  @Roles('admin')
   findBigCategorySubs(@Param('bigCategoryId') bigCategoryId: string) {
     return this.adminCategoriesService.findBigCategorySubs(+bigCategoryId);
   }
 
-  @ApiOperation({ summary: 'Big 카테고리 전체 조회', description: 'Role: public' })
+  @ApiOperation({ summary: 'Big 카테고리 전체 조회', description: 'Role: admin' })
   @ApiResponse({ type: BigCategoryDto, isArray: true })
   @Get('big')
-  @Roles('public')
+  @Roles('admin')
   findBigCategories() {
     return this.adminCategoriesService.findBigCategories();
   }
 
-  @ApiOperation({ summary: 'Medium 카테고리 전체 조회', description: 'Role: public' })
+  @ApiOperation({ summary: 'Medium 카테고리 전체 조회', description: 'Role: admin' })
   @ApiParam({ name: 'bigCategoryId', description: 'Big 카테고리 id' })
   @ApiResponse({ type: MediumCategoryDto, isArray: true })
   @Get('medium/:bigCategoryId')
-  @Roles('public')
+  @Roles('admin')
   findMediumCategories(@Param('bigCategoryId') bigCategoryId: string) {
     return this.adminCategoriesService.findMediumCategories(+bigCategoryId);
   }
 
-  @ApiOperation({ summary: 'Small 카테고리 전체 조회', description: 'Role: public' })
+  @ApiOperation({ summary: 'Small 카테고리 전체 조회', description: 'Role: admin' })
   @ApiParam({ name: 'mediumCategoryId', description: 'Medium 카테고리 id' })
   @Get('small/:mediumCategoryId')
-  @Roles('public')
+  @Roles('admin')
   findSmallCategories(@Param('mediumCategoryId') mediumCategoryId: string) {
     return this.adminCategoriesService.findSmallCategories(+mediumCategoryId);
   }

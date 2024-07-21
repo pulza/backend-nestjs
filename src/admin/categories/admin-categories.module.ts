@@ -6,4 +6,4 @@ import { AdminCategoriesController } from './admin-categories.controller';
   controllers: [AdminCategoriesController],
   providers: [AdminCategoriesService],
 })
-export class CategoriesModule {}
+export class AdminCategoriesModule {}

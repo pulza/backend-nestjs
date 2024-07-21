@@ -4,10 +4,12 @@ import { AppService } from './app.service';
 import { ConfigModule } from '@nestjs/config';
 import { AuthModule } from './auth/auth.module';
 import { PrismaModule } from './prisma/prisma.module';
-import { CategoriesModule } from './admin/categories/admin-categories.module';
+import { AdminCategoriesModule } from './admin/categories/admin-categories.module';
 import { QuizzesModule } from './quizzes/quizzes.module';
 import { CacheModule } from '@nestjs/cache-manager';
 import { CommentsModule } from './quizzes/comments/comments.module';
+import { CategoriesModule } from './categories/categories.module';
+import { UsersModule } from './users/users.module';
 
 @Module({
   imports: [
@@ -22,9 +24,11 @@ import { CommentsModule } from './quizzes/comments/comments.module';
     }),
     PrismaModule,
     AuthModule,
+    AdminCategoriesModule,
     CategoriesModule,
     QuizzesModule,
     CommentsModule,
+    UsersModule,
   ],
   controllers: [AppController],
   providers: [AppService],

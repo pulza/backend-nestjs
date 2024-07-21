@@ -1,8 +1,8 @@
 import { Controller, Post, Body, Headers, Inject } from '@nestjs/common';
 import { AuthService } from './auth.service';
-import { SignupDto } from './dto/request/signup.dto';
+import { SignupDto } from './dto/requests/signup.dto';
 import { ApiBearerAuth, ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
-import { LoginDto } from './dto/request/login.dto';
+import { LoginDto } from './dto/requests/login.dto';
 import { User } from '@prisma/client';
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import { Cache } from 'cache-manager';

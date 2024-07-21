@@ -1,9 +1,9 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
-import { CreateQuizDto } from './dto/request/create-quiz.dto';
-import { UpdateQuizDto } from './dto/request/update-quiz.dto';
+import { CreateQuizDto } from './dto/requests/create-quiz.dto';
+import { UpdateQuizDto } from './dto/requests/update-quiz.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { User } from '@prisma/client';
-import { QuizDto } from './dto/response/quiz.dto';
+import { QuizDto } from './dto/responses/quiz.dto';
 
 @Injectable()
 export class QuizzesService {
@@ -36,9 +36,9 @@ export class QuizzesService {
     const randomQuizId = quizIds[Math.floor(Math.random() * quizIds.length)] || [];
     const quiz = quizzes.find((quiz) => quiz.id === randomQuizId);
 
-    if(!quiz) throw new HttpException('', HttpStatus.NOT_FOUND)
+    if (!quiz) throw new HttpException('', HttpStatus.NOT_FOUND);
 
-    return new QuizDto(quiz)
+    return new QuizDto(quiz);
   }
 
   async create(user: User, createQuizDto: CreateQuizDto): Promise<void> {

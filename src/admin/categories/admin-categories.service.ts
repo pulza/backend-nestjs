@@ -1,8 +1,8 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
-import { CreateCategoryDto } from './dto/request/create-category.dto';
-import { UpdateCategoryDto } from './dto/request/update-category.dto';
+import { CreateCategoryDto } from './dto/requests/create-category.dto';
+import { UpdateCategoryDto } from './dto/requests/update-category.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
-import { BigCategoryDto, CategoryDto, MediumCategoryDto, SmallCategoryDto } from './dto/response/category.dto';
+import { BigCategoryDto, CategoryDto, MediumCategoryDto, SmallCategoryDto } from './dto/responses/category.dto';
 
 @Injectable()
 export class AdminCategoriesService {

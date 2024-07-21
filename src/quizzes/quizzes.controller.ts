@@ -1,10 +1,10 @@
 import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
 import { QuizzesService } from './quizzes.service';
-import { CreateQuizDto } from './dto/request/create-quiz.dto';
-import { UpdateQuizDto } from './dto/request/update-quiz.dto';
+import { CreateQuizDto } from './dto/requests/create-quiz.dto';
+import { UpdateQuizDto } from './dto/requests/update-quiz.dto';
 import { CurrentUser } from 'src/common/decorators/user.decorator';
 import { User } from '@prisma/client';
-import { QuizDto } from './dto/response/quiz.dto';
+import { QuizDto } from './dto/responses/quiz.dto';
 import { ApiOperation, ApiBody, ApiParam, ApiTags, ApiBearerAuth } from '@nestjs/swagger';
 import { Roles } from 'src/common/decorators/roles.decorator';
 
@@ -25,10 +25,9 @@ export class QuizzesController {
   @ApiOperation({ summary: '소분류 small 카테고리의 랜덤 퀴즈', description: 'Role: public' })
   @ApiParam({ name: 'smallCategoryId', description: 'small 카테고리 id' })
   @Roles('public')
-  findRandom(@Param('smallCategoryId') smallCategoryId: string): Promise<QuizDto | null>{
+  findRandom(@Param('smallCategoryId') smallCategoryId: string): Promise<QuizDto | null> {
     return this.quizzesService.findRandom(+smallCategoryId);
   }
-
 
   @ApiOperation({ summary: '퀴즈 id로 퀴즈 조회', description: 'Role: public' })
   @ApiParam({ name: 'id', description: '퀴즈 id' })
@@ -37,7 +36,6 @@ export class QuizzesController {
   findOne(@Param('id') id: string): Promise<QuizDto> {
     return this.quizzesService.findOne(+id);
   }
-
 
   @ApiOperation({ summary: '퀴즈 생성' })
   @ApiBearerAuth('access-token')

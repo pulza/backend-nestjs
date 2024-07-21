@@ -1,11 +1,11 @@
 import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
 import { CommentsService } from './comments.service';
-import { CreateCommentDto } from './dto/request/create-comment.dto';
+import { CreateCommentDto } from './dto/requests/create-comment.dto';
 import { CurrentUser } from 'src/common/decorators/user.decorator';
 import { User } from '@prisma/client';
-import { UpdateCommentDto } from './dto/request/update-comment.dto';
+import { UpdateCommentDto } from './dto/requests/update-comment.dto';
 import { ApiBearerAuth, ApiBody, ApiOperation, ApiParam, ApiResponse, ApiTags } from '@nestjs/swagger';
-import { CommentDto } from './dto/response/comment.dto';
+import { CommentDto } from './dto/responses/comment.dto';
 
 @ApiTags('quiz comments')
 @Controller('quizzes/:quizId/comments')
