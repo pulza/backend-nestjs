@@ -22,6 +22,7 @@ model User {
   password  String
   role      Int      @default(1)
   quizzes   Quiz[]
+  comments  Comment[]
 
   @@map("users")
 }
@@ -72,6 +73,20 @@ model Quiz {
   smallCategoryId  Int           @map("small_category_id")
   user             User          @relation(fields: [userId], references: [id])
   userId           Int           @map("user_id")
+  comments         Comment[]
 
   @@map("quizzes")
+}
+
+model Comment {
+  id              Int        @default(autoincrement()) @id
+  createdAt       DateTime   @default(now()) @map("created_at")
+  updatedAt       DateTime   @updatedAt @map("updated_at")
+  user            User       @relation(fields: [userId], references: [id])
+  userId          Int        @map("user_id")
+  quiz            Quiz       @relation(fields: [quizId], references: [id])
+  quizId          Int        @map("quiz_id")
+  content         String
+
+  @@map("comments")
 }
