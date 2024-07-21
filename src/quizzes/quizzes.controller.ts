@@ -21,6 +21,15 @@ export class QuizzesController {
     return this.quizzesService.findAll(+smallCategoryId);
   }
 
+  @Get('random/:smallCategoryId')
+  @ApiOperation({ summary: '소분류 small 카테고리의 랜덤 퀴즈', description: 'Role: public' })
+  @ApiParam({ name: 'smallCategoryId', description: 'small 카테고리 id' })
+  @Roles('public')
+  findRandom(@Param('smallCategoryId') smallCategoryId: string): Promise<QuizDto | null>{
+    return this.quizzesService.findRandom(+smallCategoryId);
+  }
+
+
   @ApiOperation({ summary: '퀴즈 id로 퀴즈 조회', description: 'Role: public' })
   @ApiParam({ name: 'id', description: '퀴즈 id' })
   @Get(':id')
@@ -28,6 +37,7 @@ export class QuizzesController {
   findOne(@Param('id') id: string): Promise<QuizDto> {
     return this.quizzesService.findOne(+id);
   }
+
 
   @ApiOperation({ summary: '퀴즈 생성' })
   @ApiBearerAuth('access-token')

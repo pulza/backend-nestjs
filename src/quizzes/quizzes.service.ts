@@ -28,6 +28,19 @@ export class QuizzesService {
     return new QuizDto(quiz);
   }
 
+  async findRandom(smallCategoryId: number): Promise<QuizDto> {
+    const quizzes = await this.prisma.quiz.findMany({
+      where: { smallCategoryId },
+    });
+    const quizIds = quizzes.map((quiz) => quiz.id);
+    const randomQuizId = quizIds[Math.floor(Math.random() * quizIds.length)] || [];
+    const quiz = quizzes.find((quiz) => quiz.id === randomQuizId);
+
+    if(!quiz) throw new HttpException('', HttpStatus.NOT_FOUND)
+
+    return new QuizDto(quiz)
+  }
+
   async create(user: User, createQuizDto: CreateQuizDto): Promise<void> {
     await this.prisma.smallCategory.findUniqueOrThrow({
       where: { id: createQuizDto.smallCategoryId },
