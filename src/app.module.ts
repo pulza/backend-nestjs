@@ -7,6 +7,7 @@ import { PrismaModule } from './prisma/prisma.module';
 import { CategoriesModule } from './admin/categories/categories.module';
 import { QuizzesModule } from './quizzes/quizzes.module';
 import { CacheModule } from '@nestjs/cache-manager';
+import { CommentsModule } from './quizzes/comments/comments.module';
 
 @Module({
   imports: [
@@ -23,6 +24,7 @@ import { CacheModule } from '@nestjs/cache-manager';
     AuthModule,
     CategoriesModule,
     QuizzesModule,
+    CommentsModule,
   ],
   controllers: [AppController],
   providers: [AppService],
