@@ -2,8 +2,8 @@ import { Controller, Post, Body, Patch, Param, Delete, Get } from '@nestjs/commo
 import { CategoriesService } from './categories.service';
 import { CreateCategoryDto } from './dto/request/create-category.dto';
 import { UpdateCategoryDto } from './dto/request/update-category.dto';
-import { Roles } from 'src/common/decorator/roles.decorator';
-import { ApiBody, ApiOperation, ApiParam, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { Roles } from 'src/common/decorators/roles.decorator';
+import { ApiBearerAuth, ApiBody, ApiOperation, ApiParam, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { BigCategoryDto, CategoryDto, MediumCategoryDto } from './dto/response/category.dto';
 @ApiTags('admin - categories')
 @Controller('admin/categories')
@@ -53,6 +53,7 @@ export class CategoriesController {
   }
 
   @ApiOperation({ summary: '대분류 Big 카테고리 생성', description: 'Role: admin' })
+  @ApiBearerAuth('access-token')
   @ApiBody({ type: CreateCategoryDto })
   @Post('big')
   @Roles('admin')
@@ -61,6 +62,7 @@ export class CategoriesController {
   }
 
   @ApiOperation({ summary: '대분류 Big 카테고리 수정', description: 'Role: admin' })
+  @ApiBearerAuth('access-token')
   @ApiParam({ name: 'bigCategoryId', description: 'Big 카테고리 id' })
   @ApiBody({ type: UpdateCategoryDto })
   @Patch('big/:bigCategoryId')
@@ -70,6 +72,7 @@ export class CategoriesController {
   }
 
   @ApiOperation({ summary: '대분류 Big 카테고리 삭제', description: 'Role: admin' })
+  @ApiBearerAuth('access-token')
   @ApiParam({ name: 'bigCategoryId', description: 'Big 카테고리 id' })
   @Delete('big/:bigCategoryId')
   @Roles('admin')
@@ -78,6 +81,7 @@ export class CategoriesController {
   }
 
   @ApiOperation({ summary: '중분류 Medium 카테고리 생성', description: 'Role: admin' })
+  @ApiBearerAuth('access-token')
   @ApiParam({ name: 'bigCategoryId', description: 'Big 카테고리 id' })
   @ApiBody({ type: CreateCategoryDto })
   @Post('medium/:bigCategoryId')
@@ -90,6 +94,7 @@ export class CategoriesController {
   }
 
   @ApiOperation({ summary: '중분류 Medium 카테고리 수정', description: 'Role: admin' })
+  @ApiBearerAuth('access-token')
   @ApiParam({ name: 'mediumCategoryId', description: 'Medium 카테고리 id' })
   @ApiBody({ type: UpdateCategoryDto })
   @Patch('medium/:mediumCategoryId')
@@ -102,6 +107,7 @@ export class CategoriesController {
   }
 
   @ApiOperation({ summary: '중분류 Medium 카테고리 삭제', description: 'Role: admin' })
+  @ApiBearerAuth('access-token')
   @ApiParam({ name: 'mediumCategoryId', description: 'Medium 카테고리 id' })
   @Delete('medium/:mediumCategoryId')
   @Roles('admin')
@@ -110,6 +116,7 @@ export class CategoriesController {
   }
 
   @ApiOperation({ summary: '소분류 Small 카테고리 생성', description: 'Role: admin' })
+  @ApiBearerAuth('access-token')
   @ApiParam({ name: 'mediumCategoryId', description: 'Medium 카테고리 id' })
   @ApiBody({ type: CreateCategoryDto })
   @Post('small/:mediumCategoryId')
@@ -122,6 +129,7 @@ export class CategoriesController {
   }
 
   @ApiOperation({ summary: '소분류 Small 카테고리 수정', description: 'Role: admin' })
+  @ApiBearerAuth('access-token')
   @ApiParam({ name: 'smallCategoryId', description: 'Small 카테고리 id' })
   @ApiBody({ type: UpdateCategoryDto })
   @Patch('small/:smallCategoryId')
@@ -134,6 +142,7 @@ export class CategoriesController {
   }
 
   @ApiOperation({ summary: '소분류 Small 카테고리 삭제', description: 'Role: admin' })
+  @ApiBearerAuth('access-token')
   @ApiParam({ name: 'smallCategoryId', description: 'Small 카테고리 id' })
   @Delete('small/:smallCategoryId')
   @Roles('admin')
